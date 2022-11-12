@@ -39,6 +39,7 @@ from nerfstudio.models.base_model import VanillaModelConfig
 from nerfstudio.models.instant_ngp import InstantNGPModelConfig
 from nerfstudio.models.mipnerf import MipNerfModel
 from nerfstudio.models.nerfacto import NerfactoModelConfig
+from nerfstudio.models.pref import PREFModelConfig
 from nerfstudio.models.semantic_nerfw import SemanticNerfWModelConfig
 from nerfstudio.models.tensorf import TensoRFModelConfig
 from nerfstudio.models.vanilla_nerf import NeRFModel
@@ -53,6 +54,7 @@ descriptions = {
     "semantic-nerfw": "Predicts semantic segmentations and filters out transient objects.",
     "vanilla-nerf": "Original NeRF model. (slow)",
     "tensorf": "tensorf",
+    "pref": "pref"
 }
 
 method_configs["nerfacto"] = Config(
@@ -171,6 +173,27 @@ method_configs["tensorf"] = Config(
             dataparser=BlenderDataParserConfig(),
         ),
         model=TensoRFModelConfig(),
+    ),
+    optimizers={
+        "fields": {
+            "optimizer": AdamOptimizerConfig(lr=0.001),
+            "scheduler": SchedulerConfig(lr_final=0.0001, max_steps=30000),
+        },
+        "encodings": {
+            "optimizer": AdamOptimizerConfig(lr=0.02),
+            "scheduler": SchedulerConfig(lr_final=0.002, max_steps=30000),
+        },
+    },
+)
+
+method_configs["pref"] = Config(
+    method_name="pref",
+    trainer=TrainerConfig(mixed_precision=False),
+    pipeline=VanillaPipelineConfig(
+        datamanager=VanillaDataManagerConfig(
+            dataparser=BlenderDataParserConfig(),
+        ),
+        model=PREFModelConfig(),
     ),
     optimizers={
         "fields": {

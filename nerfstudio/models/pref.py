@@ -38,7 +38,7 @@ from nerfstudio.engine.callbacks import (
 from nerfstudio.field_components.encodings import NeRFEncoding, TensorVMEncoding
 from nerfstudio.field_components.field_heads import FieldHeadNames
 from nerfstudio.field_components.pref import SpatialEncoding
-from nerfstudio.fields.tensorf_field import TensoRFField
+from nerfstudio.fields.pref_field import PREFField
 from nerfstudio.model_components.losses import MSELoss
 from nerfstudio.model_components.ray_samplers import PDFSampler, UniformSampler
 from nerfstudio.model_components.renderers import (
@@ -57,7 +57,7 @@ class PREFModelConfig(VanillaModelConfig):
 
     _target: Type = field(default_factory=lambda: PREFModel)
     """target class to instantiate"""
-    init_resolution: int = 128
+    init_resolution: int = 64
     """initial render resolution"""
     final_resolution: int = 300
     """final render resolution"""
@@ -158,13 +158,13 @@ class PREFModel(Model):
             num_components=self.num_color_components,
         )
 
-        feature_encoding = NeRFEncoding(in_dim=self.appearance_dim, num_frequencies=2, min_freq_exp=0, max_freq_exp=2)
-        direction_encoding = NeRFEncoding(in_dim=3, num_frequencies=2, min_freq_exp=0, max_freq_exp=2)
+        feature_encoding = NeRFEncoding(in_dim=self.appearance_dim, num_frequencies=1, min_freq_exp=0, max_freq_exp=2)
+        direction_encoding = NeRFEncoding(in_dim=3, num_frequencies=1, min_freq_exp=0, max_freq_exp=2)
 
-        self.field = TensoRFField(
+        self.field = PREFField(
             self.scene_box.aabb,
             feature_encoding=feature_encoding,
-            direction_encoding=direction_encoding,
+            # direction_encoding=direction_encoding,
             density_encoding=density_encoding,
             color_encoding=color_encoding,
             appearance_dim=self.appearance_dim,
